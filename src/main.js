@@ -56,17 +56,18 @@ class MainScene extends Phaser.Scene {
   }
 
   preload() {
+    const base = import.meta.env.BASE_URL
     // Load the sprite atlas + metadata exported from Aseprite/LibreSprite.
-    this.load.atlas('miffy', '/assets/miffy-Sheet.png', '/assets/miffy.json')
+    this.load.atlas('miffy', `${base}assets/miffy-Sheet.png`, `${base}assets/miffy.json`)
     this.load.atlas(
       'heart_balloon',
-      '/assets/heart_balloon-Sheet.png',
-      '/assets/heart_balloon.json'
+      `${base}assets/heart_balloon-Sheet.png`,
+      `${base}assets/heart_balloon.json`
     )
-    this.load.image('bg', '/assets/valentines_background_2026.png')
-    this.load.image('ground', '/assets/valentines_ground_2026.png')
-    this.load.image('envelope', '/assets/valentines_envelop_2026.png')
-    this.load.image('prompt', '/assets/valentine_prompt_2026.png')
+    this.load.image('bg', `${base}assets/valentines_background_2026.png`)
+    this.load.image('ground', `${base}assets/valentines_ground_2026.png`)
+    this.load.image('envelope', `${base}assets/valentines_envelop_2026.png`)
+    this.load.image('prompt', `${base}assets/valentine_prompt_2026.png`)
   }
 
   create() {
