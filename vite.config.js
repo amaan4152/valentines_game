@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
 
-  export default defineConfig({
-    base: '/my-valentine/'
-  })
+export default defineConfig({
+  base: '/valentines_game/'
+})
