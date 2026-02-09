@@ -1,0 +1,57 @@
+{ "frames": {
+   "lucia 0.ase": {
+    "frame": { "x": 2, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "lucia 1.ase": {
+    "frame": { "x": 72, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "lucia 2.ase": {
+    "frame": { "x": 142, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "lucia 3.ase": {
+    "frame": { "x": 212, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.2-dev",
+  "format": "RGBA8888",
+  "size": { "w": 282, "h": 72 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "idle", "from": 0, "to": 3, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "head", "opacity": 255, "blendMode": "normal" },
+   { "name": "uarm_r", "opacity": 255, "blendMode": "normal" },
+   { "name": "larm_r", "opacity": 255, "blendMode": "normal" },
+   { "name": "uleg_r", "opacity": 255, "blendMode": "normal" },
+   { "name": "lleg_r", "opacity": 255, "blendMode": "normal" },
+   { "name": "uleg_l", "opacity": 255, "blendMode": "normal" },
+   { "name": "lleg_l", "opacity": 255, "blendMode": "normal" },
+   { "name": "body", "opacity": 255, "blendMode": "normal" },
+   { "name": "uarm_l", "opacity": 255, "blendMode": "normal" },
+   { "name": "larm_l", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}

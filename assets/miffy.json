@@ -1,0 +1,139 @@
+{ "frames": {
+   "miffy 0.ase": {
+    "frame": { "x": 2, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 1.ase": {
+    "frame": { "x": 72, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 2.ase": {
+    "frame": { "x": 142, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 3.ase": {
+    "frame": { "x": 212, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 4.ase": {
+    "frame": { "x": 282, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 5.ase": {
+    "frame": { "x": 352, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 6.ase": {
+    "frame": { "x": 422, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 7.ase": {
+    "frame": { "x": 492, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 8.ase": {
+    "frame": { "x": 562, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 9.ase": {
+    "frame": { "x": 632, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 10.ase": {
+    "frame": { "x": 702, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 11.ase": {
+    "frame": { "x": 772, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 12.ase": {
+    "frame": { "x": 842, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   "miffy 13.ase": {
+    "frame": { "x": 912, "y": 2, "w": 68, "h": 68 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.2-dev",
+  "format": "RGBA8888",
+  "size": { "w": 982, "h": 72 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "walk", "from": 0, "to": 5, "direction": "forward" },
+   { "name": "idle", "from": 6, "to": 10, "direction": "pingpong" },
+   { "name": "held", "from": 11, "to": 11, "direction": "forward" },
+   { "name": "jump", "from": 12, "to": 12, "direction": "forward" },
+   { "name": "fall", "from": 13, "to": 13, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "background", "opacity": 255, "blendMode": "normal" },
+   { "name": "l_foot", "opacity": 255, "blendMode": "normal" },
+   { "name": "r_foot", "opacity": 255, "blendMode": "normal" },
+   { "name": "body", "opacity": 255, "blendMode": "normal" },
+   { "name": "r_ear", "opacity": 255, "blendMode": "normal" },
+   { "name": "head", "opacity": 255, "blendMode": "normal" },
+   { "name": "l_hand", "opacity": 255, "blendMode": "normal" },
+   { "name": "l_ear", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}
