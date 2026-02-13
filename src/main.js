@@ -40,7 +40,8 @@ const CHEST_PASSWORD = 'iloveyou'
 const BASE_PATH = import.meta.env.BASE_URL.replace(/\/+$/, '')
 const SECRET_PATH = `${BASE_PATH}/secret_unlocked`
 const CURRENT_PATH = window.location.pathname.replace(/\/+$/, '')
-const IS_SECRET_MODE = CURRENT_PATH === SECRET_PATH
+const SECRET_QUERY = new URLSearchParams(window.location.search).get('mode')
+const IS_SECRET_MODE = CURRENT_PATH === SECRET_PATH || SECRET_QUERY === 'secret'
 
 class SecretScene extends Phaser.Scene {
   constructor() {
