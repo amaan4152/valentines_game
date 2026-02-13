@@ -472,7 +472,8 @@ new Phaser.Game({
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    zoom: 5
+    zoom: Phaser.Scale.MAX_ZOOM,
+    autoRound: true
   },
   render: {
     pixelArt: true,
