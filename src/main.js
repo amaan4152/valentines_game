@@ -28,6 +28,7 @@ const FLOAT_SPEED = 96
 const ENVELOP_OFFSET_Y = 100
 const ENVELOP_BOB_AMPLITUDE = 6
 const ENVELOP_BOB_SPEED = 0.003
+const CHEST_OFFSET = 10
 
 class MainScene extends Phaser.Scene {
   constructor() {
@@ -53,6 +54,7 @@ class MainScene extends Phaser.Scene {
     this.promptBackdrop = null
     this.promptImage = null
     this.controlsHelp = null
+    this.chest = null
     this.overlayCooldownUntil = 0
   }
 
@@ -70,6 +72,7 @@ class MainScene extends Phaser.Scene {
     this.load.image('envelope', `${base}assets/valentines_envelop_2026.png`)
     this.load.image('prompt', `${base}assets/valentine_prompt_2026.png`)
     this.load.image('controls_help', `${base}assets/controls_help.png`)
+    this.load.image('chest', `${base}assets/chest.png`)
   }
 
   create() {
@@ -212,6 +215,9 @@ class MainScene extends Phaser.Scene {
     const groundTop = this.scale.height - GROUND_HEIGHT
     this.player.y = groundTop - this.player.height / 2
     this.groundTopY = groundTop
+    this.chest = this.add.image(0, 0, 'chest')
+    this.chest.x = this.scale.width - CHEST_OFFSET - this.chest.width / 2
+    this.chest.y = groundTop - this.chest.height / 2
 
     // Place the balloon in the center, above the ground.
     this.balloon = this.physics.add.sprite(
