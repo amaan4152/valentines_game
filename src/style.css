@@ -2,6 +2,19 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: "GohuFont 14 Nerd Font";
+  src: url("/fonts/GohuFont14NerdFont-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --prompt-font: "GohuFont 14 Nerd Font", monospace;
+  --prompt-font-size: 28px;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -25,6 +38,7 @@ html, body {
 
   touch-action: none;
   user-select: none;
+  font-family: var(--prompt-font);
 }
 
 /* Phaser injects the canvas */
@@ -34,4 +48,66 @@ html, body {
   image-rendering: crisp-edges;
   image-rendering: pixelated;
   -ms-interpolation-mode: nearest-neighbor;
+}
+
+.password-overlay,
+.password-panel,
+.password-label,
+.password-input,
+.password-button,
+.password-error {
+  font-family: var(--prompt-font);
+  font-size: var(--prompt-font-size);
+}
+
+.password-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.password-overlay.is-visible {
+  display: flex;
+  pointer-events: auto;
+}
+
+.password-panel {
+  width: min(88vw, 360px);
+  padding: 16px;
+  border: 2px solid #E84E40;
+  background: #f6e7df;
+  color: #E84E40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.password-label {
+  font-size: var(--prompt-font-size);
+}
+
+.password-input {
+  border: 2px solid #E84E40;
+  padding: 8px;
+  background: #f6e7df;
+  color: #E84E40;
+  outline: none;
+}
+
+.password-button {
+  border: 2px solid #AD1457;
+  padding: 8px 10px;
+  background: #E91E63;
+  color: #f6e7df;
+  cursor: pointer;
+}
+
+.password-error {
+  min-height: 16px;
+  color: #C41411;
+  font-size: var(--prompt-font-size);
 }

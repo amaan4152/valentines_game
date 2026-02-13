@@ -2,8 +2,8 @@ import './style.css'
 import Phaser from 'phaser'
 
 // Fixed game viewport; scaled to fit the browser.
-const GAME_WIDTH = 320
-const GAME_HEIGHT = 180
+const GAME_WIDTH = 640
+const GAME_HEIGHT = 360
 // Movement and gravity tuning values.
 const PLAYER_SPEED = 125
 const GRAVITY_Y = 900
@@ -19,16 +19,44 @@ const IDLE_FRAMES = { from: 6, to: 10 }
 const HELD_FRAMES = { from: 11, to: 11 }
 const JUMP_FRAMES = { from: 12, to: 12 }
 const FALL_FRAMES = { from: 13, to: 13 }
+// balloon consts
 const BALLOON_FLOAT_FRAMES = { from: 0, to: 3 }
 const BALLOON_HELD_FRAME = 4
 const BALLOON_FLOAT_RATE = 6
 const BALLOON_Y_OFFSET = 26
 const BALLOON_HELD_OFFSET = { x: 7, y: -10 }
+const BALLOON_RETURN_SPEED = 50
+const KEY_HELD_OFFSET = { x: 5, y: -40 }
 const FLOAT_SPEED = 96
+// envelop consts
+const ENABLE_ENVELOPE_PROMPT = false
 const ENVELOP_OFFSET_Y = 100
 const ENVELOP_BOB_AMPLITUDE = 6
 const ENVELOP_BOB_SPEED = 0.003
-const CHEST_OFFSET = 10
+// chest consts
+const CHEST_OFFSET = 40
+const CHEST_SCALE = 2
+const CHEST_PASSWORD = 'iloveyou'
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/+$/, '')
+const SECRET_PATH = `${BASE_PATH}/secret_unlocked`
+const CURRENT_PATH = window.location.pathname.replace(/\/+$/, '')
+const IS_SECRET_MODE = CURRENT_PATH === SECRET_PATH
+
+class SecretScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'SecretScene' })
+  }
+
+  preload() {
+    const base = import.meta.env.BASE_URL
+    this.load.image('secret', `${base}assets/secret.png`)
+  }
+
+  create() {
+    const secret = this.add.image(0, 0, 'secret').setOrigin(0, 0)
+    secret.setDisplaySize(this.scale.width, this.scale.height)
+  }
+}
 
 class MainScene extends Phaser.Scene {
   constructor() {
@@ -39,6 +67,7 @@ class MainScene extends Phaser.Scene {
     this.playerState = 'idle'
     this.balloon = null
     this.isHoldingBalloon = false
+    this.isBalloonReturning = false
     this.balloonState = 'float'
     this.prevLeftDown = false
     this.prevRightDown = false
@@ -50,11 +79,21 @@ class MainScene extends Phaser.Scene {
     this.groundTopY = 0
     this.envelope = null
     this.envelopeBaseY = 0
+    this.keyItem = null
+    this.keyBaseY = 0
+    this.hasKey = false
+    this.inventorySize = 0
     this.gamePaused = false
     this.promptBackdrop = null
     this.promptImage = null
+    this.rewardsImage = null
     this.controlsHelp = null
     this.chest = null
+    this.passwordOverlay = null
+    this.passwordInput = null
+    this.passwordError = null
+    this.chestUnlocked = false
+    this.overlayMode = null
     this.overlayCooldownUntil = 0
   }
 
@@ -71,6 +110,8 @@ class MainScene extends Phaser.Scene {
     this.load.image('ground', `${base}assets/valentines_ground_2026.png`)
     this.load.image('envelope', `${base}assets/valentines_envelop_2026.png`)
     this.load.image('prompt', `${base}assets/valentine_prompt_2026.png`)
+    this.load.image('rewards', `${base}assets/rewards.png`)
+    this.load.image('key', `${base}assets/key.png`)
     this.load.image('controls_help', `${base}assets/controls_help.png`)
     this.load.image('chest', `${base}assets/chest.png`)
   }
@@ -79,8 +120,18 @@ class MainScene extends Phaser.Scene {
     const bg = this.add.image(0, 0, 'bg').setOrigin(0, 0)
     bg.setDisplaySize(this.scale.width, this.scale.height)
 
-    this.envelope = this.add.image(this.scale.width / 2, ENVELOP_OFFSET_Y, 'envelope')
-    this.envelopeBaseY = ENVELOP_OFFSET_Y
+    this.keyItem = this.physics.add
+      .sprite(this.scale.width / 2, ENVELOP_OFFSET_Y, 'key')
+      .setCollideWorldBounds(true)
+    this.keyItem.body.setGravityY(GRAVITY_Y)
+    this.keyItem.setDragX(1200)
+    this.keyItem.body.setAllowGravity(false)
+    this.keyItem.setBounce(0.3)
+    this.keyBaseY = ENVELOP_OFFSET_Y
+    if (ENABLE_ENVELOPE_PROMPT) {
+      this.envelope = this.add.image(this.scale.width / 2, ENVELOP_OFFSET_Y, 'envelope')
+      this.envelopeBaseY = ENVELOP_OFFSET_Y
+    }
 
     this.promptBackdrop = this.add
       .rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.25)
@@ -92,6 +143,40 @@ class MainScene extends Phaser.Scene {
       .setAlpha(0)
       .setDepth(51)
     this.promptImage.setDisplaySize(this.scale.width * 0.8, this.scale.height * 0.8)
+    this.rewardsImage = this.add
+      .image(this.scale.width / 2, this.scale.height / 2, 'rewards')
+      .setAlpha(0)
+      .setDepth(52)
+    this.rewardsImage.setDisplaySize(this.scale.width, this.scale.height)
+    const appRoot = document.getElementById('app')
+    if (appRoot) {
+      this.passwordOverlay = document.createElement('div')
+      this.passwordOverlay.className = 'password-overlay'
+      this.passwordOverlay.innerHTML = `
+        <div class="password-panel">
+          <label class="password-label" for="chest-password-input">Enter password</label>
+          <input id="chest-password-input" class="password-input" type="password" autocomplete="off" />
+          <div class="password-error"></div>
+          <button class="password-button" type="button">Unlock</button>
+        </div>
+      `
+      appRoot.appendChild(this.passwordOverlay)
+      this.passwordInput = this.passwordOverlay.querySelector('.password-input')
+      this.passwordError = this.passwordOverlay.querySelector('.password-error')
+      const passwordButton = this.passwordOverlay.querySelector('.password-button')
+      this.passwordInput?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault()
+          this.tryUnlockChest()
+        } else if (event.key === 'Escape') {
+          event.preventDefault()
+          this.closePausedOverlay()
+        }
+      })
+      passwordButton?.addEventListener('click', () => {
+        this.tryUnlockChest()
+      })
+    }
     this.controlsHelp = this.add.image(8, 8, 'controls_help').setOrigin(0, 0).setDepth(40).setAlpha(0.1)
     this.controlsHelp.setInteractive({ useHandCursor: true })
     this.controlsHelp.on('pointerover', () => {
@@ -200,11 +285,13 @@ class MainScene extends Phaser.Scene {
     )
     this.ground.setDisplaySize(this.scale.width, GROUND_HEIGHT)
     this.physics.add.existing(this.ground, true)
+    this.physics.add.collider(this.keyItem, this.ground)
 
     // Create the player physics sprite and enable collisions.
     this.player = this.physics.add
       .sprite(startX, startY, 'miffy', 'miffy 0.cropped')
       .setCollideWorldBounds(true)
+    this.player.setDepth(12)
     this.player.play('miffy-idle')
     this.playerState = 'idle'
     console.log('[state] miffy -> idle')
@@ -216,8 +303,10 @@ class MainScene extends Phaser.Scene {
     this.player.y = groundTop - this.player.height / 2
     this.groundTopY = groundTop
     this.chest = this.add.image(0, 0, 'chest')
+    this.chest.setScale(CHEST_SCALE)
+    this.chest.setDepth(10)
     this.chest.x = this.scale.width - CHEST_OFFSET - this.chest.width / 2
-    this.chest.y = groundTop - this.chest.height / 2
+    this.chest.y = groundTop - (CHEST_SCALE*this.chest.height) / 2
 
     // Place the balloon in the center, above the ground.
     this.balloon = this.physics.add.sprite(
@@ -225,6 +314,7 @@ class MainScene extends Phaser.Scene {
       groundTop - BALLOON_Y_OFFSET,
       'heart_balloon'
     )
+    this.balloon.setDepth(15)
     this.balloonHomeX = this.balloon.x
     this.balloonHomeY = this.balloon.y
     this.balloon.setImmovable(true)
@@ -289,32 +379,32 @@ class MainScene extends Phaser.Scene {
     if (!this.player || !this.keys) return
     if (this.gamePaused) {
       if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) {
-        this.tweens.add({
-          targets: [this.promptBackdrop, this.promptImage],
-          alpha: 0,
-          duration: 300,
-          ease: 'Sine.easeIn',
-          onComplete: () => {
-            this.physics.world.resume()
-            this.gamePaused = false
-            this.overlayCooldownUntil = this.time.now + 5000
-          }
-        })
+        this.closePausedOverlay()
       }
       return
+    }
+    if (this.keyItem && !this.hasKey && !this.keyItem.body.allowGravity) {
+      this.keyItem.y =
+        this.keyBaseY + Math.sin(this.time.now * ENVELOP_BOB_SPEED) * ENVELOP_BOB_AMPLITUDE
     }
     if (this.envelope) {
       this.envelope.y =
         this.envelopeBaseY + Math.sin(this.time.now * ENVELOP_BOB_SPEED) * ENVELOP_BOB_AMPLITUDE
     }
 
-    if (this.isHoldingBalloon && this.envelope && this.time.now >= this.overlayCooldownUntil) {
+    if (
+      ENABLE_ENVELOPE_PROMPT &&
+      this.isHoldingBalloon &&
+      this.envelope &&
+      this.time.now >= this.overlayCooldownUntil
+    ) {
       const playerBounds = this.player.getBounds()
       const envelopeBounds = this.envelope.getBounds()
       Phaser.Geom.Rectangle.Inflate(envelopeBounds, 12, 12)
       const intersects = Phaser.Geom.Intersects.RectangleToRectangle(playerBounds, envelopeBounds)
       if (intersects) {
         this.gamePaused = true
+        this.overlayMode = 'prompt'
         this.physics.world.pause()
         this.promptBackdrop.setAlpha(0)
         this.promptImage.setAlpha(0)
@@ -324,6 +414,37 @@ class MainScene extends Phaser.Scene {
           duration: 400,
           ease: 'Sine.easeOut'
         })
+        return
+      }
+    }
+    if (this.hasKey && this.chest && this.time.now >= this.overlayCooldownUntil) {
+      const playerBounds = this.player.getBounds()
+      const chestBounds = this.chest.getBounds()
+      Phaser.Geom.Rectangle.Inflate(chestBounds, 8, 8)
+      const intersects = Phaser.Geom.Intersects.RectangleToRectangle(playerBounds, chestBounds)
+      if (intersects) {
+        this.gamePaused = true
+        this.physics.world.pause()
+        this.promptBackdrop.setAlpha(0)
+        if (this.chestUnlocked) {
+          this.overlayMode = 'rewards'
+          this.rewardsImage.setAlpha(0)
+          this.tweens.add({
+            targets: [this.promptBackdrop, this.rewardsImage],
+            alpha: 1,
+            duration: 500,
+            ease: 'Sine.easeOut'
+          })
+        } else {
+          this.overlayMode = 'password'
+          this.tweens.add({
+            targets: [this.promptBackdrop],
+            alpha: 1,
+            duration: 500,
+            ease: 'Sine.easeOut'
+          })
+          this.showPasswordOverlay()
+        }
         return
       }
     }
@@ -358,27 +479,54 @@ class MainScene extends Phaser.Scene {
     const canGrab =
       this.balloon &&
       !this.isHoldingBalloon &&
+      !this.isBalloonReturning &&
       this.physics.overlap(this.player, this.balloon)
+    const canGrabKey =
+      this.keyItem &&
+      !this.hasKey &&
+      this.inventorySize === 0 &&
+      Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), this.keyItem.getBounds())
     if (this.keys.interact && Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (this.isHoldingBalloon) {
+      if (canGrabKey) {
+        this.hasKey = true
+        this.inventorySize += 1
+        this.keyItem.body.setAllowGravity(false)
+        this.keyItem.body.enable = false
+        this.keyItem.setVelocity(0, 0)
+        console.log('[state] key -> held')
+        console.log(`[state] inventory -> ${this.inventorySize}`)
+      } else if (this.hasKey) {
+        this.hasKey = false
+        this.inventorySize = Math.max(0, this.inventorySize - 1)
+        this.keyItem.body.enable = true
+        this.keyItem.body.setAllowGravity(true)
+        this.keyItem.setVelocityX((this.player.body?.velocity?.x ?? 0) * 0.35)
+        this.keyItem.setVelocityY(0)
+        console.log('[state] key -> dropped')
+        console.log(`[state] inventory -> ${this.inventorySize}`)
+      } else if (this.isHoldingBalloon) {
         this.isHoldingBalloon = false
-        this.balloonState = 'float'
-        this.balloon.play('float', true)
-        this.balloon.x = this.balloonHomeX
-        this.balloon.y = this.balloonHomeY
+        this.isBalloonReturning = true
+        this.balloonState = 'return'
+        this.balloon.play('held', true)
         this.playerState = 'idle'
         this.player.body.setAllowGravity(true)
-        console.log('[state] balloon -> float')
+        this.inventorySize = Math.max(0, this.inventorySize - 1)
+        console.log('[state] balloon -> return')
+        console.log(`[state] inventory -> ${this.inventorySize}`)
         console.log('[state] miffy -> idle')
       } else if (canGrab) {
         this.isHoldingBalloon = true
+        this.isBalloonReturning = false
         this.balloonState = 'held'
         this.balloon.play('held', true)
         this.player.play('miffy-held', true)
         this.player.body.setAllowGravity(false)
         this.player.setVelocityY(0)
         this.floatDir = -1
+        this.inventorySize += 1
         console.log('[state] balloon -> held')
+        console.log(`[state] inventory -> ${this.inventorySize}`)
       }
     }
 
@@ -387,6 +535,26 @@ class MainScene extends Phaser.Scene {
       this.balloon.x = this.player.x + offsetX
       this.balloon.y = this.player.y + BALLOON_HELD_OFFSET.y
       this.balloonHomeX = this.balloon.x
+    }
+    if (this.isBalloonReturning && this.balloon) {
+      this.balloon.y += BALLOON_RETURN_SPEED * (delta / 1000)
+      if (this.balloon.y >= this.balloonHomeY) {
+        this.balloon.y = this.balloonHomeY
+        this.isBalloonReturning = false
+        this.balloonState = 'float'
+        this.balloon.play('float', true)
+        console.log('[state] balloon -> float')
+      }
+    }
+    if (this.hasKey && this.keyItem) {
+      const offsetX = this.player.flipX ? -KEY_HELD_OFFSET.x : KEY_HELD_OFFSET.x
+      this.keyItem.x = this.player.x + offsetX
+      this.keyItem.y = this.player.y + KEY_HELD_OFFSET.y
+    }
+    if (!this.hasKey && this.keyItem?.body?.allowGravity && this.keyItem.body.blocked.down) {
+      if (Math.abs(this.keyItem.body.velocity.x) < 8) {
+        this.keyItem.setVelocityX(0)
+      }
     }
 
     if (vx > 0) {
@@ -452,11 +620,78 @@ class MainScene extends Phaser.Scene {
         this.balloon.y = this.balloonHomeY
         this.playerState = 'idle'
         this.player.body.setAllowGravity(true)
+        this.inventorySize = Math.max(0, this.inventorySize - 1)
         this.floatDir = -1
         console.log('[state] balloon -> float')
+        console.log(`[state] inventory -> ${this.inventorySize}`)
         console.log('[state] miffy -> idle')
       }
     }
+  }
+
+  showPasswordOverlay() {
+    if (!this.passwordOverlay) return
+    this.passwordOverlay.classList.add('is-visible')
+    this.inputState.left = false
+    this.inputState.right = false
+    if (this.input?.keyboard) {
+      this.input.keyboard.disableGlobalCapture()
+    }
+    if (this.passwordInput) {
+      this.passwordInput.value = ''
+      this.passwordInput.focus()
+      this.passwordInput.select()
+    }
+    if (this.passwordError) this.passwordError.textContent = ''
+  }
+
+  hidePasswordOverlay() {
+    if (!this.passwordOverlay) return
+    this.passwordOverlay.classList.remove('is-visible')
+    if (this.input?.keyboard) {
+      this.input.keyboard.enableGlobalCapture()
+    }
+    if (this.passwordError) this.passwordError.textContent = ''
+  }
+
+  tryUnlockChest() {
+    if (!this.gamePaused || this.overlayMode !== 'password') return
+    if (!this.passwordInput) return
+    if (this.passwordInput.value === CHEST_PASSWORD) {
+      this.chestUnlocked = true
+      this.hidePasswordOverlay()
+      this.overlayMode = 'rewards'
+      this.rewardsImage.setAlpha(0)
+      this.tweens.add({
+        targets: [this.rewardsImage],
+        alpha: 1,
+        duration: 300,
+        ease: 'Sine.easeOut'
+      })
+      return
+    }
+    if (this.passwordError) this.passwordError.textContent = 'Incorrect password'
+    this.passwordInput.select()
+  }
+
+  closePausedOverlay() {
+    if (!this.gamePaused) return
+    const fadeTargets = [this.promptBackdrop]
+    if (this.overlayMode === 'prompt') fadeTargets.push(this.promptImage)
+    if (this.overlayMode === 'rewards') fadeTargets.push(this.rewardsImage)
+    this.hidePasswordOverlay()
+    this.tweens.add({
+      targets: fadeTargets,
+      alpha: 0,
+      duration: 300,
+      ease: 'Sine.easeIn',
+      onComplete: () => {
+        this.physics.world.resume()
+        this.gamePaused = false
+        this.overlayMode = null
+        this.overlayCooldownUntil = this.time.now + 1000
+      }
+    })
   }
 }
 
@@ -467,7 +702,7 @@ new Phaser.Game({
   backgroundColor: '#0b0b0b',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  scene: [MainScene],
+  scene: [IS_SECRET_MODE ? SecretScene : MainScene],
   physics: {
     default: 'arcade',
     arcade: {
