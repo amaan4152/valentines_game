@@ -52,6 +52,7 @@ class MainScene extends Phaser.Scene {
     this.gamePaused = false
     this.promptBackdrop = null
     this.promptImage = null
+    this.controlsHelp = null
     this.overlayCooldownUntil = 0
   }
 
@@ -68,6 +69,7 @@ class MainScene extends Phaser.Scene {
     this.load.image('ground', `${base}assets/valentines_ground_2026.png`)
     this.load.image('envelope', `${base}assets/valentines_envelop_2026.png`)
     this.load.image('prompt', `${base}assets/valentine_prompt_2026.png`)
+    this.load.image('controls_help', `${base}assets/controls_help.png`)
   }
 
   create() {
@@ -87,6 +89,15 @@ class MainScene extends Phaser.Scene {
       .setAlpha(0)
       .setDepth(51)
     this.promptImage.setDisplaySize(this.scale.width * 0.8, this.scale.height * 0.8)
+    this.controlsHelp = this.add.image(8, 8, 'controls_help').setOrigin(0, 0).setDepth(40).setAlpha(0.1)
+    this.controlsHelp.setInteractive({ useHandCursor: true })
+    this.controlsHelp.on('pointerover', () => {
+      this.controlsHelp.setAlpha(0.4)
+    })
+    this.controlsHelp.on('pointerout', () => {
+      this.controlsHelp.setAlpha(0.1)
+    })
+
     // Spawn the player with a small offset from the bottom-left.
     const offsetX = 80
     const offsetY = 80
