@@ -2,14 +2,14 @@ import './style.css'
 import Phaser from 'phaser'
 
 // Fixed game viewport; scaled to fit the browser.
-const GAME_WIDTH = 800
-const GAME_HEIGHT = 450
+const GAME_WIDTH = 320
+const GAME_HEIGHT = 180
 // Movement and gravity tuning values.
 const PLAYER_SPEED = 125
 const GRAVITY_Y = 900
 // Bottom padding baked into each frame that we want to crop out.
 const SPRITE_BOTTOM_PAD = 3
-const GROUND_HEIGHT = 40
+const GROUND_HEIGHT = 32
 // Animation tuning.
 const WALK_FRAME_RATE = 6
 const IDLE_FRAME_RATE = 4
